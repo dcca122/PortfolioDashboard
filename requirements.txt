@@ -10,3 +10,5 @@ plotly
 ta
 jupyter
 shap
+scipy
+streamlit

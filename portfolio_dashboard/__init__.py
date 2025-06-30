@@ -8,3 +8,10 @@ from .model_utils import (
     save_model,
     load_model,
 )
+from .backtest import run_backtest, BacktestResult
+from .options_utils import (
+    black_scholes_price,
+    option_greeks,
+    implied_volatility,
+    OptionGreeks,
+)
