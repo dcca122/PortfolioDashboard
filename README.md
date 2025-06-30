@@ -23,3 +23,14 @@ This downloads weekly prices from Yahoo! Finance and writes a table of
 lagged factors with graph metrics.
 
 
+
+## Model training
+
+After generating the feature dataset you can train the XGBoost model and generate trading signals:
+
+```bash
+python -m portfolio_dashboard.train_model --data features.parquet \
+    --model-out xgb_model.pkl --pred-out predictions.csv
+```
+
+Optional SHAP values can be saved with `--shap-out shap.csv`.
