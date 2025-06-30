@@ -12,6 +12,8 @@ from .backtest import run_backtest, BacktestResult
 from .options_utils import (
     black_scholes_price,
     option_greeks,
-    implied_volatility,
+    implied_vol,
+    compute_all_option_metrics,
     OptionGreeks,
+    load_option_chain,
 )
