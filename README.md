@@ -34,3 +34,12 @@ python -m portfolio_dashboard.train_model --data features.parquet \
 ```
 
 Optional SHAP values can be saved with `--shap-out shap.csv`.
+
+## Dashboard
+
+Launch the unified Streamlit dashboard for backtest visualization and options
+analytics:
+
+```bash
+streamlit run app.py
+```

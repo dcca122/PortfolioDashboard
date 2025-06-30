@@ -1,21 +1,25 @@
 """Streamlit app for single-contract options analysis."""
 from __future__ import annotations
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import streamlit as st
 import yfinance as yf
 
-from .options_utils import black_scholes_price, option_greeks, implied_volatility
+from .options_utils import (
+    implied_vol,
+    compute_all_option_metrics,
+    load_option_chain,
+)
 
 
-def load_option_chain(ticker: str, expiry: str) -> pd.DataFrame:
-    """Fetch option chain for ticker and expiry."""
-    data = yf.Ticker(ticker)
-    chain = data.option_chain(expiry)
-    calls = chain.calls.assign(option_type='call')
-    puts = chain.puts.assign(option_type='put')
-    return pd.concat([calls, puts])
+def valuation_label(market_price: float, bs_price: float) -> str:
+    """Return valuation label comparing market and model price."""
+    if market_price < bs_price:
+        return "Undervalued"
+    if market_price > bs_price:
+        return "Overvalued"
+    return "Fair"
 
 
 def main() -> None:
@@ -49,17 +53,20 @@ def main() -> None:
     q = st.number_input("Dividend yield", value=0.0)
     iv = st.number_input("Implied volatility", value=float(iv_chain))
 
-    bs_price = black_scholes_price(spot, strike, T, r, iv, q, option_type)
-    greeks = option_greeks(spot, strike, T, r, iv, q, option_type)
+    flag = "c" if option_type == "call" else "p"
+    metrics = compute_all_option_metrics(flag, spot, strike, T, r, iv, market_price=None, q=q)
+    bs_price = metrics["fair_value"]
+    greeks = metrics["greeks"]
 
     st.subheader("Results")
     st.write("Market price:", market_price)
     st.write("Black-Scholes price:", round(bs_price, 4))
+    st.write(valuation_label(market_price, bs_price))
     st.write(greeks)
 
     user_price = st.number_input("Input market price to solve IV", value=float(market_price))
     if user_price:
-        iv_est = implied_volatility(user_price, spot, strike, T, r, q, option_type)
+        iv_est = implied_vol(user_price, spot, strike, T, r, q, option_type)
         if not np.isnan(iv_est):
             st.write("Implied volatility from price:", round(iv_est, 4))
         else:
